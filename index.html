@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>员工点名系统</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+    
+    /* 管理端样式 */
+    .admin-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    textarea {
+      width: 100%;
+      border: 2px solid #e8ecf4;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 120px;
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color 0.3s;
+      font-family: inherit;
+    }
+    textarea:focus {
+      border-color: #667eea;
+    }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 4px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e8ecf4;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .input-group input:focus {
+      border-color: #667eea;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    .btn-outline {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    .qr-section {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .qr-section img {
+      width: 200px;
+      height: 200px;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+    .qr-section .tip {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+    .url-box {
+      background: #f8f9ff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      word-break: break-all;
+      color: #667eea;
+      margin-top: 8px;
+    }
+    .count-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      margin-left: 8px;
+    }
+    
+    /* 选择端样式 */
+    .select-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+    .status-bar {
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+    .status-bar.success {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .status-bar.warning {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+    .status-bar.error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .name-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .name-tag {
+      padding: 12px 20px;
+      background: #f8f9ff;
+      border: 2px solid #e0e4f4;
+      border-radius: 25px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+      font-weight: 500;
+    }
+    .name-tag:active {
+      transform: scale(0.95);
+    }
+    .name-tag.selected {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    .name-tag.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .selected-box {
+      background: #fffbeb;
+      border: 2px solid #fde68a;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .selected-box .title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    .selected-item {
+      display: inline-block;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin: 3px;
+      font-size: 0.9rem;
+      border: 1px solid #fde68a;
+      font-weight: 500;
+    }
+    .counter-badge {
+      display: inline-block;
+      background: #fbbf24;
+      color: #1a1a2e;
+      padding: 3px 12px;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .message-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      z-index: 1000;
+      animation: slideDown 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .message-toast.success {
+      background: #059669;
+      color: white;
+    }
+    .message-toast.error {
+      background: #dc2626;
+      color: white;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ==================== 管理端 ==================== -->
+  <div id="adminPage" class="admin-container">
+    <div class="header">
+      <h1>📋 员工点名系统</h1>
+      <p>管理端 - 输入名单生成二维码</p>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">
+        👥 员工名单
+        <span class="count-badge" id="nameCount">0人</span>
+      </div>
+      <textarea id="nameInput" placeholder="每行输入一个员工姓名&#10;例如：&#10;张三&#10;李四&#10;王五">张三
+李四
+王五
+赵六
+陈七</textarea>
+      
+      <div class="card-title">⏰ 选择时间范围</div>
+      <div class="input-group">
+        <label>开始时间</label>
+        <input type="datetime-local" id="startTime">
+      </div>
+      <div class="input-group">
+        <label>结束时间</label>
+        <input type="datetime-local" id="endTime">
+      </div>
+      
+      <button class="btn btn-primary" onclick="generateQRCode()">
+        📱 生成二维码
+      </button>
+      <button class="btn btn-outline" onclick="previewSelect()" style="margin-top:8px;">
+        👁️ 预览选择页面
+      </button>
+    </div>
+    
+    <div class="qr-section" id="qrSection" style="display:none;">
+      <div style="font-weight:600;font-size:1rem;margin-bottom:8px;">
+        📱 微信扫码进入选择
+      </div>
+      <img id="qrImage" src="" alt="二维码" style="display:none;">
+      <div id="qrLoading" style="padding:20px;color:#9ca3af;">正在生成二维码...</div>
+      <div id="qrError" style="display:none;padding:20px;color:#dc2626;"></div>
+      <div class="url-box" id="urlBox" style="display:none;"></div>
+      <div class="tip">💡 也可复制链接发送给员工</div>
+    </div>
+  </div>
+  
+  <!-- ==================== 选择端 ==================== -->
+  <div id="selectPage" class="select-container" style="display:none;">
+    <div class="header">
+      <h1>🎯 员工选择</h1>
+      <p id="selectHeaderInfo"></p>
+    </div>
+    
+    <div id="timeStatusBar" class="status-bar"></div>
+    
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <span style="font-weight:600;font-size:1rem;">请选择员工</span>
+        <span class="counter-badge" id="selectCounter">0/3</span>
+      </div>
+      
+      <div class="name-grid" id="nameGrid"></div>
+      
+      <div class="selected-box">
+        <div class="title">⭐ 已选择的员工（置顶显示）</div>
+        <div id="selectedArea">
+          <span style="color:#9ca3af;font-size:0.85rem;">请点击上方姓名进行选择</span>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="submitSelection()">
+        ✅ 确认选择
+      </button>
+      <button class="btn btn-outline" onclick="resetSelection()" style="margin-top:8px;">
+        🔄 重新选择
+      </button>
+    </div>
+  </div>
+  
+  <!-- Toast消息 -->
+  <div id="toast" class="message-toast" style="display:none;"></div>
+
+<script>
+// ==================== 全局变量 ====================
+var STORAGE_KEY = 'employee_data_v2';
+var RECORDS_KEY = 'selection_records_v2';
+var MAX_SELECT = 3;
+
+var currentData = null;
+var selectedNames = [];
+
+// ==================== 工具函数 ====================
+function $(id) { return document.getElementById(id); }
+
+function showToast(msg, type) {
+  var toast = $('toast');
+  toast.textContent = msg;
+  toast.className = 'message-toast ' + (type || 'success');
+  toast.style.display = 'block';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(function() {
+    toast.style.display = 'none';
+  }, 2500);
+}
+
+// 初始化时间
+function initTime() {
+  var now = new Date();
+  var tomorrow = new Date(now.getTime() + 86400000);
+  
+  function fmt(d) {
+    var pad = function(n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + '-' + 
+      pad(d.getMonth() + 1) + '-' + 
+      pad(d.getDate()) + 'T' + 
+      pad(d.getHours()) + ':' + 
+      pad(d.getMinutes());
+  }
+  
+  $('startTime').value = fmt(now);
+  $('endTime').value = fmt(tomorrow);
+}
+
+// 更新姓名计数
+function updateNameCount() {
+  var text = $('nameInput').value;
+  var names = text.split('\n').filter(function(s) { return s.trim().length > 0; });
+  $('nameCount').textContent = names.length + '人';
+}
+
+// 获取去重后的员工名单
+function getEmployeesFromInput() {
+  var text = $('nameInput').value;
+  var names = text.split('\n').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+  
+  // 去重
+  var unique = [];
+  for (var i = 0; i < names.length; i++) {
+    if (unique.indexOf(names[i]) === -1) {
+      unique.push(names[i]);
+    }
+  }
+  return unique;
+}
+
+// ==================== 数据存储 ====================
+function saveData(employees) {
+  currentData = {
+    employees: employees,
+    startTime: $('startTime').value || null,
+    endTime: $('endTime').value || null,
+    created: new Date().toISOString()
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+}
+
+function loadData() {
+  var dataStr = localStorage.getItem(STORAGE_KEY);
+  if (!dataStr) return false;
+  
+  try {
+    currentData = JSON.parse(dataStr);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// ==================== 二维码生成 ====================
+function generateQRCode() {
+  var employees = getEmployeesFromInput();
+  
+  if (employees.length === 0) {
+    showToast('请至少输入一个员工姓名', 'error');
+    return;
+  }
+  
+  // 保存数据
+  saveData(employees);
+  
+  // 显示二维码区域
+  var qrSection = $('qrSection');
+  var qrImage = $('qrImage');
+  var qrLoading = $('qrLoading');
+  var qrError = $('qrError');
+  var urlBox = $('urlBox');
+  
+  qrSection.style.display = 'block';
+  qrImage.style.display = 'none';
+  qrLoading.style.display = 'block';
+  qrError.style.display = 'none';
+  
+  // 构建URL（部署后自动使用当前域名）
+  var baseUrl = window.location.origin + window.location.pathname;
+  var selectUrl = baseUrl + '?mode=select';
+  
+  // 使用多个QR API备用
+  var apis = [
+    'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=',
+    'https://qrcode.tec-it.com/API/QRCode?data=',
+    'https://api.qrcode-monkey.com/https://api.qrcode-monkey.com/tmp/'
+  ];
+  
+  function tryApi(index) {
+    if (index >= apis.length) {
+      // 所有API都失败
+      qrLoading.style.display = 'none';
+      qrError.style.display = 'block';
+      qrError.innerHTML = '❌ 在线二维码生成失败<br><br>请复制下方链接<br>到微信发送给员工';
+      urlBox.style.display = 'block';
+      urlBox.textContent = selectUrl;
+      return;
+    }
+    
+    var imgUrl = apis[index] + encodeURIComponent(selectUrl);
+    
+    qrImage.onload = function() {
+      qrLoading.style.display = 'none';
+      qrImage.style.display = 'block';
+      qrError.style.display = 'none';
+      urlBox.style.display = 'block';
+      urlBox.textContent = '链接：' + selectUrl;
+      showToast('✅ 二维码已生成（' + employees.length + '名员工）');
+    };
+    
+    qrImage.onerror = function() {
+      tryApi(index + 1);
+    };
+    
+    qrImage.src = imgUrl;
+  }
+  
+  tryApi(0);
+}
+
+// ==================== 选择页面 ====================
+function previewSelect() {
+  if (!loadData()) {
+    // 尝试使用当前输入
+    var employees = getEmployeesFromInput();
+    if (employees.length === 0) {
+      showToast('请先输入员工姓名并生成二维码', 'error');
+      return;
+    }
+    saveData(employees);
+    loadData();
+  }
+  
+  showSelectPage();
+}
+
+function showSelectPage() {
+  $('adminPage').style.display = 'none';
+  $('selectPage').style.display = 'block';
+  selectedNames = [];
+  
+  // 更新头部
+  $('selectHeaderInfo').textContent = '共 ' + currentData.employees.length + ' 名员工';
+  
+  updateSelectUI();
+}
+
+function getTimeStatus() {
+  if (!currentData.startTime || !currentData.endTime) {
+    return { valid: true, text: '⏳ 未设置时间限制，可随时选择', cls: 'warning' };
+  }
+  
+  var now = new Date();
+  var start = new Date(currentData.startTime);
+  var end = new Date(currentData.endTime);
+  
+  if (now < start) {
+    var diffMin = Math.floor((start - now) / 60000);
+    return { 
+      valid: false, 
+      text: '⏰ 选择尚未开始（' + (diffMin > 60 ? Math.floor(diffMin/60) + '小时' : diffMin + '分钟') + '后开始）', 
+      cls: 'warning' 
+    };
+  }
+  
+  if (now > end) {
+    return { valid: false, text: '🚫 选择已结束', cls: 'error' };
+  }
+  
+  var remaining = Math.floor((end - now) / 60000);
+  return { 
+    valid: true, 
+    text: '✅ 可以正常选择（剩余' + (remaining > 60 ? Math.floor(remaining/60) + '小时' : remaining + '分钟') + '）', 
+    cls: 'success' 
+  };
+}
+
+function updateSelectUI() {
+  var status = getTimeStatus();
+  var bar = $('timeStatusBar');
+  bar.textContent = status.text;
+  bar.className = 'status-bar ' + status.cls;
+  
+  // 渲染姓名
+  var grid = $('nameGrid');
+  grid.innerHTML = '';
+  
+  for (var i = 0; i < currentData.employees.length; i++) {
+    var name = currentData.employees[i];
+    var tag = document.createElement('div');
+    tag.className = 'name-tag';
+    tag.textContent = name;
+    
+    if (selectedNames.indexOf(name) !== -1) {
+      tag.classList.add('selected');
+    }
+    if (!status.valid) {
+      tag.classList.add('disabled');
+    }
+    
+    // 闭包绑定事件
+    (function(n) {
+      tag.onclick = function() {
+        if (!getTimeStatus().valid) {
+          showToast('不在允许的时间范围内', 'error');
+          return;
+        }
+        toggleName(n);
+      };
+    })(name);
+    
+    grid.appendChild(tag);
+  }
+  
+  // 更新已选区域
+  updateSelectedArea();
+  
+  // 更新计数器
+  $('selectCounter').textContent = selectedNames.length + '/' + MAX_SELECT;
+}
+
+function toggleName(name) {
+  var idx = selectedNames.indexOf(name);
+  if (idx !== -1) {
+    selectedNames.splice(idx, 1);
+  } else {
+    if (selectedNames.length >= MAX_SELECT) {
+      showToast('最多只能选择 ' + MAX_SELECT + ' 人', 'error');
+      return;
+    }
+    selectedNames.push(name);
+  }
+  updateSelectUI();
+}
+
+function updateSelectedArea() {
+  var area = $('selectedArea');
+  if (selectedNames.length === 0) {
+    area.innerHTML = '<span style="color:#9ca3af;font-size:0.85rem;">请点击上方姓名进行选择</span>';
+    return;
+  }
+  
+  var html = '';
+  for (var i = 0; i < selectedNames.length; i++) {
+    html += '<span class="selected-item">' + selectedNames[i] + '</span>';
+  }
+  area.innerHTML = html;
+}
+
+function resetSelection() {
+  selectedNames = [];
+  updateSelectUI();
+  showToast('已清除选择');
+}
+
+function submitSelection() {
+  var status = getTimeStatus();
+  if (!status.valid) {
+    showToast('不在允许的时间范围内', 'error');
+    return;
+  }
+  
+  if (selectedNames.length === 0) {
+    showToast('请至少选择一名员工', 'error');
+    return;
+  }
+  
+  var names = selectedNames.join('、');
+  
+  // 保存记录
+  try {
+    var records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+    records.push({
+      time: new Date().toISOString(),
+      selected: selectedNames.slice()
+    });
+    // 只保留最近100条
+    if (records.length > 100) {
+      records = records.slice(-100);
+    }
+    localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+  } catch(e) {}
+  
+  showToast('✅ 选择成功！已选：' + names);
+  
+  // 2秒后自动清空
+  setTimeout(function() {
+    selectedNames = [];
+    updateSelectUI();
+  }, 2000);
+}
+
+// ==================== 页面初始化 ====================
+window.onload = function() {
+  initTime();
+  updateNameCount();
+  
+  // 监听输入变化
+  $('nameInput').addEventListener('input', updateNameCount);
+  
+  // 检查URL参数
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('mode') === 'select') {
+    // 扫码进入
+    if (loadData()) {
+      showSelectPage();
+    } else {
+      showToast('未找到数据，请联系管理员', 'error');
+    }
+  } else {
+    // 管理端 - 尝试加载已保存数据
+    if (loadData()) {
+      $('nameInput').value = currentData.employees.join('\n');
+      updateNameCount();
+      if (currentData.startTime) $('startTime').value = currentData.startTime;
+      if (currentData.endTime) $('endTime').value = currentData.endTime;
+    }
+  }
+};
+</script>
+</body>
+</html>
